@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2024
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQ.NET", "PQ.NET\PQ.NET.csproj", "{C0C1A75D-53F7-4FBE-B908-335C230AA6DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQ.NET_Tests", "PQ.NET_Tests\PQ.NET_Tests.csproj", "{9E02DF9B-5C99-48C2-8F2A-088B8E63FD1C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C0C1A75D-53F7-4FBE-B908-335C230AA6DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0C1A75D-53F7-4FBE-B908-335C230AA6DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0C1A75D-53F7-4FBE-B908-335C230AA6DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0C1A75D-53F7-4FBE-B908-335C230AA6DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E02DF9B-5C99-48C2-8F2A-088B8E63FD1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E02DF9B-5C99-48C2-8F2A-088B8E63FD1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E02DF9B-5C99-48C2-8F2A-088B8E63FD1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E02DF9B-5C99-48C2-8F2A-088B8E63FD1C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E14085E8-3AB7-4B34-BE26-DF848B4FE45B}
+	EndGlobalSection
+EndGlobal
