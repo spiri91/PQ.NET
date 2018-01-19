@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace PQ.NET
 {
@@ -8,44 +9,85 @@ namespace PQ.NET
     {
         internal HashSet<UInt32> _priorities { get; private set; }
 
-        public CoreStore(IEnumerable<uint> priorities)
-        {
+        private ConcurrentDictionary<uint, ConcurrentQueue<T>> store;
+        private T defaultObj;
+        private uint minPrio;
+        private uint maxPrio;
 
+        public CoreStore(IEnumerable<uint> priorities, T defaultObj)
+        {
+            store = new ConcurrentDictionary<uint, ConcurrentQueue<T>>();
+            this.defaultObj = defaultObj;
+
+            foreach (var i in priorities) _priorities.Add(i);
+
+            AddPrioritiesInStore();
+            SetMinAndMaxPrio();
         }
 
-        internal void Append<T>(T obj, uint priority) where T : new()
+        private void SetMinAndMaxPrio()
         {
-            throw new NotImplementedException();
+            minPrio = _priorities.Min();
+            maxPrio = _priorities.Max();
         }
 
-        internal void Append<T>(T obj) where T : new()
+        private void AddPrioritiesInStore()
         {
-            throw new NotImplementedException();
+            foreach(var i in _priorities)
+                store.AddOrUpdate(i, new ConcurrentQueue<T>(), (key, old) => old);
         }
 
+        internal void Append(T obj, uint priority) => store[priority].Enqueue(obj);
+
+        internal void Append(T obj) => store[minPrio].Enqueue(obj);
+       
         internal T Pop(uint priority)
         {
-            throw new NotImplementedException();
+            store[priority].TryDequeue(out T obj);
+
+            return obj;
         }
 
         internal Tuple<T, uint> Pop()
         {
-            throw new NotImplementedException();
+            foreach(var i in _priorities.OrderByDescending(x => x))
+            {
+                if(store[i].Count > 0)
+                {
+                    store[i].TryDequeue(out T obj);
+                    return new Tuple<T, uint>(obj, i);
+                }
+            }
+
+            return new Tuple<T, uint>(defaultObj, 0);
         }
 
         internal void AddPriority(uint priority)
         {
-            throw new NotImplementedException();
+            _priorities.Add(priority);
+            store.AddOrUpdate(priority, new ConcurrentQueue<T>(), (key, oldQ) => oldQ);
         }
 
         internal T Peek(uint priority)
         {
-            throw new NotImplementedException();
+            store[priority].TryPeek(out T obj);
+
+            return obj;
         }
 
         internal T Peek()
         {
-            throw new NotImplementedException();
+            foreach (var i in _priorities.OrderByDescending(x => x))
+            {
+                if (store[i].Count > 0)
+                {
+                    store[i].TryPeek(out T obj);
+
+                    return obj;
+                }
+            }
+
+            return defaultObj;
         }
     }
 }

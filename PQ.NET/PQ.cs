@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace PQ.NET
 {
@@ -8,12 +7,14 @@ namespace PQ.NET
     {
         private CoreStore<T> _coreStore;
 
+        public IEnumerable<uint> ExistingPriorities { get { return _coreStore._priorities; } }
+
         public event EventHandler ElementEnqueued;
         public event EventHandler ElementDequeued;
 
-        public PQ(IEnumerable<uint> priorities)
+        public PQ(IEnumerable<uint> priorities, T defaultObject)
         {
-            _coreStore = new CoreStore<T>(priorities);
+            _coreStore = new CoreStore<T>(priorities, defaultObject);
         }
 
         public void Enqueue(T obj, uint priority)
@@ -28,7 +29,6 @@ namespace PQ.NET
             EnsureObjIsNotNull(obj);
             _coreStore.Append(obj);
         }
-
 
         public T Dequeue(uint priority)
         {
@@ -47,10 +47,7 @@ namespace PQ.NET
             return element.Item1;
         }
 
-        public void AddPriority(uint priority)
-        {
-            _coreStore.AddPriority(priority);
-        }
+        public void AddPriority(uint priority) => _coreStore.AddPriority(priority);
 
         public void AddPriorities(IEnumerable<uint> priorities)
         {

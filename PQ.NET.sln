@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQ.NET", "PQ.NET\PQ.NET.csproj", "{C0C1A75D-53F7-4FBE-B908-335C230AA6DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PQ.NET", "PQ.NET\PQ.NET.csproj", "{C0C1A75D-53F7-4FBE-B908-335C230AA6DD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQ.NET_Tests", "PQ.NET_Tests\PQ.NET_Tests.csproj", "{9E02DF9B-5C99-48C2-8F2A-088B8E63FD1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQ.NET_ManualTests", "PQ.NET_ManualTests\PQ.NET_ManualTests.csproj", "{EBBB4464-8200-4356-85BE-BD35BB7EB516}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{9E02DF9B-5C99-48C2-8F2A-088B8E63FD1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E02DF9B-5C99-48C2-8F2A-088B8E63FD1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E02DF9B-5C99-48C2-8F2A-088B8E63FD1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBBB4464-8200-4356-85BE-BD35BB7EB516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBBB4464-8200-4356-85BE-BD35BB7EB516}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBBB4464-8200-4356-85BE-BD35BB7EB516}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBBB4464-8200-4356-85BE-BD35BB7EB516}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
