@@ -7,14 +7,18 @@ namespace PQ.NET
     public class PQ<T> : IQueue<T>
     {
         public IEnumerable<uint> ExistingPriorities { get { return _coreStore._priorities; } }
+        public IList<PQEvent<T>> EventsHistory { get { return _eventHistoryStore.history.ToList(); } }
+
         public event EventHandler ElementEnqueued;
         public event EventHandler ElementDequeued;
 
         private CoreStore<T> _coreStore;
+        private EventHistoryStore<T> _eventHistoryStore;
 
         public PQ(IEnumerable<uint> priorities, T defaultObject)
         {
             _coreStore = new CoreStore<T>(priorities, defaultObject);
+            _eventHistoryStore = new EventHistoryStore<T>();
         }
 
         #region Queries
@@ -67,6 +71,7 @@ namespace PQ.NET
             if (!CheckIfPriorityExists(priority))
                 _coreStore.AddPriority(priority);
 
+            AddEventToHistory(Actions.Enqueue, obj, priority);
             FireEnqueuedEvent(obj, priority);
             _coreStore.Append(obj, priority);
         }
@@ -74,6 +79,7 @@ namespace PQ.NET
         public void Enqueue(T obj)
         {
             EnsureObjIsNotNull(obj);
+            AddEventToHistory(Actions.Enqueue, obj, ExistingPriorities.Min());
             FireEnqueuedEvent(obj, ExistingPriorities.Min());
             _coreStore.Append(obj);
         }
@@ -82,6 +88,7 @@ namespace PQ.NET
         {
             CheckIfPriorityExists(priority);
             var obj = _coreStore.Pop(priority);
+            AddEventToHistory(Actions.Dequeue, obj, priority);
             FireDequeuedEvent(obj, priority);
 
             return obj;
@@ -90,6 +97,7 @@ namespace PQ.NET
         public T Dequeue()
         {
             Tuple<T, uint> element = _coreStore.Pop();
+            AddEventToHistory(Actions.Dequeue, element.Item1, element.Item2);
             FireDequeuedEvent(element.Item1, element.Item2);
 
             return element.Item1;
@@ -109,6 +117,9 @@ namespace PQ.NET
         }
 
         public void EmptyQueue() => _coreStore.EmptyQueue();
+
+        public virtual void AddEventToHistory(Actions action, T obj, uint priority) 
+            => _eventHistoryStore.Add(new PQEvent<T>(action, obj, priority));
         #endregion
 
         private void EnsureObjIsNotNull(T obj)

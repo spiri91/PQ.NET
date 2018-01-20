@@ -218,7 +218,35 @@ namespace PQ.NET_Tests
         [TestCase]
         public void Should_Add_History_Events()
         {
-            throw new NotImplementedException();
+            var pq = CreatePQ();
+            foreach (var i in elementsToEnque)
+                pq.Enqueue(i);
+
+            Assert.True(pq.EventsHistory.Count() == elementsToEnque.Count);
+        }
+
+        [TestCase]
+        public void Should_Add_History_Events_With_Enqueue_Action()
+        {
+            var pq = CreatePQ();
+            elementsToEnque.ForEach(x => pq.Enqueue(x));
+
+            Assert.True(pq.EventsHistory.All(x => x.Action == Actions.Enqueue));
+            Assert.True(pq.EventsHistory.Count() == elementsToEnque.Count());
+        }
+
+        [TestCase]
+        public void Should_Add_History_Events_With_Dequeue_Action()
+        {
+            var pq = CreatePQ();
+            elementsToEnque.ForEach(x => pq.Enqueue(x, priorities.Max()));
+
+            var countElementWithPrioMax = pq.GetLengthOfQueue(priorities.Max());
+            for (var i = 0; i < countElementWithPrioMax; i++)
+                pq.Dequeue();
+
+            var events = pq.EventsHistory;
+            Assert.True(events.Count(x => x.Action == Actions.Dequeue) == elementsToEnque.Count());
         }
 
         [TestCase]
