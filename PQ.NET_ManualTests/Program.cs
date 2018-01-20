@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PQ.NET_ManualTests
+namespace PQ.NET_Examples
 {
     class Program
     {

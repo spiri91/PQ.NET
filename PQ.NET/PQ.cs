@@ -4,31 +4,25 @@ using System.Linq;
 
 namespace PQ.NET
 {
-    public class PQ<T> : IQueue<T>
+    public class Pq<T> : IQueue<T>
     {
-        public IEnumerable<uint> ExistingPriorities { get { return _coreStore._priorities; } }
-        public IList<PQEvent<T>> EventsHistory { get { return _eventHistoryStore.history.ToList(); } }
+        public IEnumerable<uint> ExistingPriorities => _coreStore.Priorities;
+        public IList<PqEvent<T>> EventsHistory => _eventHistoryStore.History.ToList();
 
         public event EventHandler ElementEnqueued;
         public event EventHandler ElementDequeued;
 
-        private CoreStore<T> _coreStore;
-        private EventHistoryStore<T> _eventHistoryStore;
+        private readonly CoreStore<T> _coreStore;
+        private readonly EventHistoryStore<T> _eventHistoryStore;
 
-        public PQ(IEnumerable<uint> priorities, T defaultObject)
+        public Pq(IEnumerable<uint> levelsOfPriority, T defaultObject)
         {
-            _coreStore = new CoreStore<T>(priorities, defaultObject);
+            _coreStore = new CoreStore<T>(levelsOfPriority, defaultObject);
             _eventHistoryStore = new EventHistoryStore<T>();
         }
 
         #region Queries
-        public IList<T> this[uint index]
-        {
-            get
-            {
-                return GetFullQueueWithPriority(index);
-            }
-        }
+        public IList<T> this[uint index] => GetFullQueueWithPriority(index);
 
         public IList<T> GetFullQueueWithPriority(uint index)
         {
@@ -62,7 +56,7 @@ namespace PQ.NET
             return _coreStore.GetLengthOfQueue(priority);
         }
 
-        private bool CheckIfPriorityExists(uint priority) => _coreStore._priorities.Contains(priority);
+        private bool CheckIfPriorityExists(uint priority) => _coreStore.Priorities.Contains(priority);
         #endregion
 
         #region Commands
@@ -96,7 +90,7 @@ namespace PQ.NET
 
         public T Dequeue()
         {
-            Tuple<T, uint> element = _coreStore.Pop();
+            var element = _coreStore.Pop();
             AddEventToHistory(Actions.Dequeue, element.Item1, element.Item2);
             FireDequeuedEvent(element.Item1, element.Item2);
 
@@ -118,10 +112,11 @@ namespace PQ.NET
 
         public void EmptyQueue() => _coreStore.EmptyQueue();
 
-        public virtual void AddEventToHistory(Actions action, T obj, uint priority) 
-            => _eventHistoryStore.Add(new PQEvent<T>(action, obj, priority));
+        protected virtual void AddEventToHistory(Actions action, T obj, uint priority) 
+            => _eventHistoryStore.Add(new PqEvent<T>(action, obj, priority));
         #endregion
 
+        // ReSharper disable once UnusedParameter.Local
         private void EnsureObjIsNotNull(T obj)
         {
             if (obj == null)

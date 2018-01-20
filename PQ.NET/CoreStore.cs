@@ -7,20 +7,19 @@ namespace PQ.NET
 {
     class CoreStore<T>
     {
-        internal HashSet<uint> _priorities { get; private set; }
+        internal HashSet<uint> Priorities { get; private set; }
 
-        private ConcurrentDictionary<uint, ConcurrentQueue<T>> store;
-        private T defaultObj;
-        private uint minPrio;
-        private uint maxPrio;
+        private readonly ConcurrentDictionary<uint, ConcurrentQueue<T>> _store;
+        private readonly T _defaultObj;
+        private uint _minPrio;
 
         internal CoreStore(IEnumerable<uint> priorities, T defaultObj)
         {
-            store = new ConcurrentDictionary<uint, ConcurrentQueue<T>>();
-            _priorities = new HashSet<uint>();
-            this.defaultObj = defaultObj;
+            _store = new ConcurrentDictionary<uint, ConcurrentQueue<T>>();
+            Priorities = new HashSet<uint>();
+            _defaultObj = defaultObj;
 
-            foreach (var i in priorities) _priorities.Add(i);
+            foreach (var i in priorities) Priorities.Add(i);
 
             AddPrioritiesInStore();
             SetMinAndMaxPrio();
@@ -28,87 +27,85 @@ namespace PQ.NET
 
         private void SetMinAndMaxPrio()
         {
-            minPrio = _priorities.Min();
-            maxPrio = _priorities.Max();
+            _minPrio = Priorities.Min();
         }
 
         internal IList<T> GetAllElementsWithPrio(uint index)
         {
-            return store[index].ToList();
+            return _store[index].ToList();
         }
 
         private void AddPrioritiesInStore()
         {
-            foreach(var i in _priorities)
-                store.AddOrUpdate(i, new ConcurrentQueue<T>(), (key, old) => old);
+            foreach(var i in Priorities)
+                _store.AddOrUpdate(i, new ConcurrentQueue<T>(), (key, old) => old);
         }
 
-        internal void Append(T obj, uint priority) => store[priority].Enqueue(obj);
+        internal void Append(T obj, uint priority) => _store[priority].Enqueue(obj);
 
-        internal void Append(T obj) => store[minPrio].Enqueue(obj);
+        internal void Append(T obj) => _store[_minPrio].Enqueue(obj);
        
         internal T Pop(uint priority)
         {
-            store[priority].TryDequeue(out T obj);
+            _store[priority].TryDequeue(out T obj);
 
             return obj;
         }
 
         internal Tuple<T, uint> Pop()
         {
-            foreach(var i in _priorities.OrderByDescending(x => x))
+            foreach(var i in Priorities.OrderByDescending(x => x))
             {
-                if(store[i].Count > 0)
+                if(_store[i].Count > 0)
                 {
-                    store[i].TryDequeue(out T obj);
+                    _store[i].TryDequeue(out T obj);
                     return new Tuple<T, uint>(obj, i);
                 }
             }
 
-            return new Tuple<T, uint>(defaultObj, 0);
+            return new Tuple<T, uint>(_defaultObj, 0);
         }
 
         internal void AddPriority(uint priority)
         {
-            _priorities.Add(priority);
-            store.AddOrUpdate(priority, new ConcurrentQueue<T>(), (key, oldQ) => oldQ);
+            Priorities.Add(priority);
+            _store.AddOrUpdate(priority, new ConcurrentQueue<T>(), (key, oldQ) => oldQ);
         }
 
         internal T Peek(uint priority)
         {
-            store[priority].TryPeek(out T obj);
+            _store[priority].TryPeek(out T obj);
 
             return obj;
         }
 
         internal T Peek()
         {
-            foreach (var i in _priorities.OrderByDescending(x => x))
+            foreach (var i in Priorities.OrderByDescending(x => x))
             {
-                if (store[i].Count > 0)
+                if (_store[i].Count > 0)
                 {
-                    store[i].TryPeek(out T obj);
+                    _store[i].TryPeek(out T obj);
 
                     return obj;
                 }
             }
 
-            return defaultObj;
+            return _defaultObj;
         }
 
-        internal int GetLengthOfQueue(uint priority) => store[priority].Count();
+        internal int GetLengthOfQueue(uint priority) => _store[priority].Count();
 
         internal void DeletePrio(uint priority)
         {
-            ConcurrentQueue<T> queue;
-            store.TryRemove(priority, out queue);
-            if (_priorities.Contains(priority)) _priorities.Remove(priority);
+            _store.TryRemove(priority, out ConcurrentQueue<T> _);
+            if (Priorities.Contains(priority)) Priorities.Remove(priority);
         }
 
         internal int GetLengthOfQueue()
         {
             var total = 0;
-            foreach (var i in store)
+            foreach (var i in _store)
                 total += i.Value.Count();
 
             return total;
@@ -116,8 +113,8 @@ namespace PQ.NET
 
         internal void EmptyQueue()
         {
-            store.Clear();
-            _priorities.Clear();
+            _store.Clear();
+            Priorities.Clear();
         }
     }
 }

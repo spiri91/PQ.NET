@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PQ.NET", "PQ.NET\PQ.NET.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQ.NET_Tests", "PQ.NET_Tests\PQ.NET_Tests.csproj", "{9E02DF9B-5C99-48C2-8F2A-088B8E63FD1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQ.NET_ManualTests", "PQ.NET_ManualTests\PQ.NET_ManualTests.csproj", "{EBBB4464-8200-4356-85BE-BD35BB7EB516}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PQ.NET_Examples", "PQ.NET_ManualTests\PQ.NET_Examples.csproj", "{EBBB4464-8200-4356-85BE-BD35BB7EB516}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

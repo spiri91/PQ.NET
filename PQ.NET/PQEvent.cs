@@ -2,19 +2,19 @@
 
 namespace PQ.NET
 {
-    public class PQEvent<T>
+    public class PqEvent<T>
     {
-        public Actions Action { get; private set; }
-        public T Value { get; private set; }
-        public DateTimeOffset TimeItHappened { get; private set; }
-        public uint Priority { get; private set; }
+        public Actions Action { get; }
+        public T Value { get; }
+        public DateTimeOffset TimeItHappened { get; }
+        public uint Priority { get; }
 
-        public PQEvent(Actions action, T value, uint priority)
+        public PqEvent(Actions action, T value, uint priority)
         {
-            this.Action = action;
-            this.Value = value;
-            this.TimeItHappened = DateTimeOffset.UtcNow;
-            this.Priority = priority;
+            Action = action;
+            Value = value;
+            TimeItHappened = DateTimeOffset.UtcNow;
+            Priority = priority;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace PQ.NET
 {
@@ -12,13 +10,13 @@ namespace PQ.NET
 
     internal class EventHistoryStore<T>
     {
-        internal ConcurrentBag<PQEvent<T>> history;
+        internal readonly ConcurrentBag<PqEvent<T>> History;
 
         public EventHistoryStore()
         {
-            history = new ConcurrentBag<PQEvent<T>>();
+            History = new ConcurrentBag<PqEvent<T>>();
         }
 
-        internal void Add(PQEvent<T> pQEvent) => history.Add(pQEvent);
+        internal void Add(PqEvent<T> pQEvent) => History.Add(pQEvent);
     }
 }
