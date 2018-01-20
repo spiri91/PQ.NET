@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PQ.NET
 {
-    public class PQ<T> : IQueue<T> where T : new()
+    public class PQ<T> : IQueue<T>
     {
         private CoreStore<T> _coreStore;
 
@@ -19,7 +19,9 @@ namespace PQ.NET
 
         public void Enqueue(T obj, uint priority)
         {
-            CheckIfPriorityExists(priority);
+            if (!CheckIfPriorityExists(priority))
+                _coreStore.AddPriority(priority);
+
             FireEnqueuedEvent(obj, priority);
             _coreStore.Append(obj, priority);
         }
@@ -69,7 +71,7 @@ namespace PQ.NET
             return obj;
         }
 
-        private void CheckIfPriorityExists(uint priority) => _coreStore._priorities.Contains(priority);
+        private bool CheckIfPriorityExists(uint priority) => _coreStore._priorities.Contains(priority);
 
         private void EnsureObjIsNotNull(T obj)
         {
@@ -79,6 +81,29 @@ namespace PQ.NET
 
         private void FireEnqueuedEvent(T obj, uint priority) => ElementEnqueued?.Invoke(this, new EventArgsContainer<T>(obj, priority));
 
+        public int GetLengthOfQueue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetLengthOfQueue(uint priority)
+        {
+            if (!CheckIfPriorityExists(priority))
+                return 0;
+
+            return _coreStore.GetLengthOfQueue(priority);
+        }
+
         private void FireDequeuedEvent(T obj, uint priority) => ElementDequeued?.Invoke(this, new EventArgsContainer<T>(obj, priority));
+
+        public void DeletePriority(uint priority)
+        {
+            _coreStore.DeletePrio(priority);
+        }
+
+        public void EmptyQueue()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

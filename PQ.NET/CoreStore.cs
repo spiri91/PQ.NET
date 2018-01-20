@@ -7,7 +7,7 @@ namespace PQ.NET
 {
     class CoreStore<T>
     {
-        internal HashSet<UInt32> _priorities { get; private set; }
+        internal HashSet<uint> _priorities { get; private set; }
 
         private ConcurrentDictionary<uint, ConcurrentQueue<T>> store;
         private T defaultObj;
@@ -17,6 +17,7 @@ namespace PQ.NET
         public CoreStore(IEnumerable<uint> priorities, T defaultObj)
         {
             store = new ConcurrentDictionary<uint, ConcurrentQueue<T>>();
+            _priorities = new HashSet<uint>();
             this.defaultObj = defaultObj;
 
             foreach (var i in priorities) _priorities.Add(i);
@@ -88,6 +89,15 @@ namespace PQ.NET
             }
 
             return defaultObj;
+        }
+
+        internal int GetLengthOfQueue(uint priority) => store[priority].Count();
+
+        internal void DeletePrio(uint priority)
+        {
+            ConcurrentQueue<T> queue;
+            store.TryRemove(priority, out queue);
+            if (_priorities.Contains(priority)) _priorities.Remove(priority);
         }
     }
 }
