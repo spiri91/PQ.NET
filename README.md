@@ -1,5 +1,5 @@
 # PQ.NET
 
-# in progress 
+currrently in progress 
 
-Simple priority queue for .net standard 
+Simple priority queue written .net standard, thread safe, will become available soon as a nugget package
