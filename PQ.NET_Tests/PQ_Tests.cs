@@ -63,8 +63,8 @@ namespace PQ.NET_Tests
         {
             var pq = CreatePQ();
             pq.Enqueue(defaultElementForEnqueue);
-            var dequeuedElement = pq.Peek();
-            Assert.AreEqual(dequeuedElement, defaultElementForEnqueue);
+            var peekedElement = pq.Peek();
+            Assert.AreEqual(peekedElement, defaultElementForEnqueue);
             var lengthOfQ = pq.GetLengthOfQueue();
             Assert.AreEqual(1, lengthOfQ);
         }
@@ -75,8 +75,9 @@ namespace PQ.NET_Tests
             var prio = priorities.Min();
             var pq = CreatePQ();
             pq.Enqueue(defaultElementForEnqueue, prio);
-            var dequeuedElement = pq.Peek(prio);
-            Assert.AreEqual(dequeuedElement, defaultElementForEnqueue);
+            var peekedElement = pq.Peek(prio);
+            Assert.AreEqual(peekedElement, defaultElementForEnqueue);
+
             var lengthOfQ = pq.GetLengthOfQueue(prio);
             Assert.AreEqual(1, lengthOfQ);
         }
@@ -120,9 +121,11 @@ namespace PQ.NET_Tests
             var pq = CreatePQ();
             var wasCalledEnqueuedEvent = false;
             var wasCalledDequeuedEvent = false;
+            pq.Enqueue(defaultElementForEnqueue);
+
             pq.ElementEnqueued += (a, b) => wasCalledEnqueuedEvent = true;
             pq.ElementDequeued += (a, b) => wasCalledDequeuedEvent = true;
-            pq.Enqueue(defaultElementForEnqueue);
+           
             pq.Dequeue();
 
             Assert.True(wasCalledDequeuedEvent);
@@ -187,6 +190,53 @@ namespace PQ.NET_Tests
             Assert.AreEqual(defaultObject, pq.Dequeue());
         }
 
+        [TestCase]
+        public void Should_Count_All_Elements_In_Queue()
+        {
+            var pq = CreatePQ();
+            foreach (var i in priorities)
+                foreach (var j in elementsToEnque)
+                    pq.Enqueue(j, i);
+
+            var totalNumberOfElements = pq.GetLengthOfQueue();
+
+            Assert.AreEqual(priorities.Count() * elementsToEnque.Count(), totalNumberOfElements);
+        }
+
+        public void Should_Get_All_Elements_In_Queue_With_Priority()
+        {
+            var pq = CreatePQ();
+            foreach (var i in elementsToEnque)
+                pq.Enqueue(i, priorities.Max());
+
+            var elementsWithPrio = pq[priorities.Max()];
+            Assert.AreEqual(elementsWithPrio, elementsToEnque);
+            elementsWithPrio = pq.GetFullQueueWithPriority(priorities.Max());
+            Assert.AreEqual(elementsWithPrio, elementsToEnque);
+        }
+
+        [TestCase]
+        public void Should_Add_History_Events()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestCase]
+        public void Should_See_New_Priority_In_List()
+        {
+            var pq = CreatePQ();
+
+            pq.AddPriority(priorities.Max() + 1);
+            pq.AddPriorities(priorities);
+
+            Assert.True(pq.ExistingPriorities.Contains(priorities.Max() + 1));
+            Assert.AreEqual(pq.ExistingPriorities.Count(), priorities.Count() + 1);
+
+            pq.Enqueue(defaultElementForEnqueue, priorities.Max() + 2);
+
+            Assert.True(pq.ExistingPriorities.Contains(priorities.Max() + 2));
+            Assert.True(pq.ExistingPriorities.Count() == priorities.Count() + 2);
+        }
 
         private PQ<string> CreatePQ()
         {

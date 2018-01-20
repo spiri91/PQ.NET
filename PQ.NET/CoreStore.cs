@@ -14,7 +14,7 @@ namespace PQ.NET
         private uint minPrio;
         private uint maxPrio;
 
-        public CoreStore(IEnumerable<uint> priorities, T defaultObj)
+        internal CoreStore(IEnumerable<uint> priorities, T defaultObj)
         {
             store = new ConcurrentDictionary<uint, ConcurrentQueue<T>>();
             _priorities = new HashSet<uint>();
@@ -30,6 +30,11 @@ namespace PQ.NET
         {
             minPrio = _priorities.Min();
             maxPrio = _priorities.Max();
+        }
+
+        internal IList<T> GetAllElementsWithPrio(uint index)
+        {
+            return store[index].ToList();
         }
 
         private void AddPrioritiesInStore()
@@ -98,6 +103,21 @@ namespace PQ.NET
             ConcurrentQueue<T> queue;
             store.TryRemove(priority, out queue);
             if (_priorities.Contains(priority)) _priorities.Remove(priority);
+        }
+
+        internal int GetLengthOfQueue()
+        {
+            var total = 0;
+            foreach (var i in store)
+                total += i.Value.Count();
+
+            return total;
+        }
+
+        internal void EmptyQueue()
+        {
+            store.Clear();
+            _priorities.Clear();
         }
     }
 }

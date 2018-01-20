@@ -1,22 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PQ.NET
 {
     public class PQ<T> : IQueue<T>
     {
-        private CoreStore<T> _coreStore;
-
         public IEnumerable<uint> ExistingPriorities { get { return _coreStore._priorities; } }
-
         public event EventHandler ElementEnqueued;
         public event EventHandler ElementDequeued;
+
+        private CoreStore<T> _coreStore;
 
         public PQ(IEnumerable<uint> priorities, T defaultObject)
         {
             _coreStore = new CoreStore<T>(priorities, defaultObject);
         }
 
+        #region Queries
+        public IList<T> this[uint index]
+        {
+            get
+            {
+                return GetFullQueueWithPriority(index);
+            }
+        }
+
+        public IList<T> GetFullQueueWithPriority(uint index)
+        {
+            if (!ExistingPriorities.Contains(index))
+                return new List<T>();
+
+            return _coreStore.GetAllElementsWithPrio(index);
+        }
+
+        public T Peek(uint priority)
+        {
+            var obj = _coreStore.Peek(priority);
+
+            return obj;
+        }
+
+        public T Peek()
+        {
+            var obj = _coreStore.Peek();
+
+            return obj;
+        }
+
+        public int GetLengthOfQueue() => _coreStore.GetLengthOfQueue();
+
+        public int GetLengthOfQueue(uint priority)
+        {
+            if (!CheckIfPriorityExists(priority))
+                return 0;
+
+            return _coreStore.GetLengthOfQueue(priority);
+        }
+
+        private bool CheckIfPriorityExists(uint priority) => _coreStore._priorities.Contains(priority);
+        #endregion
+
+        #region Commands
         public void Enqueue(T obj, uint priority)
         {
             if (!CheckIfPriorityExists(priority))
@@ -29,6 +74,7 @@ namespace PQ.NET
         public void Enqueue(T obj)
         {
             EnsureObjIsNotNull(obj);
+            FireEnqueuedEvent(obj, ExistingPriorities.Min());
             _coreStore.Append(obj);
         }
 
@@ -57,53 +103,22 @@ namespace PQ.NET
                 _coreStore.AddPriority(i);
         }
 
-        public T Peek(uint priority)
-        {
-            var obj = _coreStore.Peek(priority);
-
-            return obj;
-        }
-
-        public T Peek()
-        {
-            var obj = _coreStore.Peek();
-
-            return obj;
-        }
-
-        private bool CheckIfPriorityExists(uint priority) => _coreStore._priorities.Contains(priority);
-
-        private void EnsureObjIsNotNull(T obj)
-        {
-            if (obj == null)
-                throw new ArgumentNullException();
-        }
-
-        private void FireEnqueuedEvent(T obj, uint priority) => ElementEnqueued?.Invoke(this, new EventArgsContainer<T>(obj, priority));
-
-        public int GetLengthOfQueue()
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetLengthOfQueue(uint priority)
-        {
-            if (!CheckIfPriorityExists(priority))
-                return 0;
-
-            return _coreStore.GetLengthOfQueue(priority);
-        }
-
-        private void FireDequeuedEvent(T obj, uint priority) => ElementDequeued?.Invoke(this, new EventArgsContainer<T>(obj, priority));
-
         public void DeletePriority(uint priority)
         {
             _coreStore.DeletePrio(priority);
         }
 
-        public void EmptyQueue()
+        public void EmptyQueue() => _coreStore.EmptyQueue();
+        #endregion
+
+        private void EnsureObjIsNotNull(T obj)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+                throw new NullReferenceException();
         }
+
+        private void FireDequeuedEvent(T obj, uint priority) => ElementDequeued?.Invoke(this, new EventArgsContainer<T>(obj, priority));
+
+        private void FireEnqueuedEvent(T obj, uint priority) => ElementEnqueued?.Invoke(this, new EventArgsContainer<T>(obj, priority));
     }
 }
