@@ -17,6 +17,12 @@ namespace PQ.NET
 
         public Pq(IEnumerable<uint> levelsOfPriority, T defaultObject)
         {
+            if (levelsOfPriority == null || levelsOfPriority.Count() == 0)
+                throw new ArgumentException("Levels of priority should contain at least one element.");
+
+            if (defaultObject == null)
+                throw new ArgumentNullException("Default object can not be null.");
+
             _coreStore = new CoreStore<T>(levelsOfPriority, defaultObject);
             _eventHistoryStore = new EventHistoryStore<T>();
         }
@@ -55,8 +61,6 @@ namespace PQ.NET
 
             return _coreStore.GetLengthOfQueue(priority);
         }
-
-        private bool CheckIfPriorityExists(uint priority) => _coreStore.Priorities.Contains(priority);
         #endregion
 
         #region Commands
@@ -122,6 +126,8 @@ namespace PQ.NET
             if (obj == null)
                 throw new NullReferenceException();
         }
+
+        private bool CheckIfPriorityExists(uint priority) => _coreStore.Priorities.Contains(priority);
 
         private void FireDequeuedEvent(T obj, uint priority) => ElementDequeued?.Invoke(this, new EventArgsContainer<T>(obj, priority));
 

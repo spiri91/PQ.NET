@@ -329,5 +329,14 @@ namespace PQ.NET_Tests
             _obj = pq.Dequeue();
             Assert.AreSame(_obj, "moo");
         }
+
+        [TestCase]
+        public void Should_Throw_Error_On_Invalid_Constructor()
+        {
+            Assert.Throws<ArgumentException>(() => new Pq<string>(new uint[0], _defaultObject));
+            Assert.Throws<ArgumentNullException>(() => new Pq<string>(_priorities, null));
+            Assert.Throws<ArgumentException>(() => new Pq<string>(new uint[0], null));
+            Assert.Throws<ArgumentException>(() => new Pq<string>(null, _defaultObject));
+        }
     }
 }
