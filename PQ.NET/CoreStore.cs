@@ -76,7 +76,7 @@ namespace PQ.NET
         {
             _store[priority].TryPeek(out T obj);
 
-            return obj;
+            return obj == null ? _defaultObj : obj;
         }
 
         internal T Peek()

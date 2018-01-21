@@ -23,7 +23,7 @@ namespace PQ.NET_Tests
         }
 
         [TestCase]
-        public void Should_Create_PQ_Instance() 
+        public void Should_Create_PQ_Instance()
         {
             CreatePq();
         }
@@ -110,7 +110,7 @@ namespace PQ.NET_Tests
         {
             var wasCalledEnqueuedEvent = false;
             var wasCalledDequeuedEvent = false;
-            pq.ElementEnqueued += (a,b) => wasCalledEnqueuedEvent = true;
+            pq.ElementEnqueued += (a, b) => wasCalledEnqueuedEvent = true;
             pq.ElementDequeued += (a, b) => wasCalledDequeuedEvent = true;
             pq.Enqueue(_defaultElementForEnqueue);
 
@@ -152,7 +152,7 @@ namespace PQ.NET_Tests
             Assert.False(pq.ExistingPriorities.Contains(_priorities.Min()));
 
             pq.Enqueue(_defaultElementForEnqueue, _priorities.Min());
-           
+
             Assert.AreEqual(1, pq.GetLengthOfQueue(_priorities.Min()));
         }
 
@@ -262,6 +262,72 @@ namespace PQ.NET_Tests
             Assert.AreEqual(elements.Count(), _elementsToEnque.Count());
             Assert.True(pq.ExistingPriorities.Count() == _priorities.Count());
             Assert.True(pq.ExistingPriorities.Contains(_priorities.Min()));
+        }
+
+        [TestCase]
+        public void Should_Return_Default_Object_On_Peek_Empty_Queue_With_Priority()
+        {
+            var obj = pq.Peek(_priorities.Max());
+
+            Assert.AreSame(obj, _defaultObject);
+        }
+
+        [TestCase]
+        public void Should_Return_Default_Object_On_Peek_Empty_Queue()
+        {
+            var obj = pq.Peek();
+
+            Assert.AreSame(obj, _defaultObject);
+        }
+
+        [TestCase]
+        public void Should_Brodcast_Same_Obj_On_Enqueue()
+        {
+            pq.ElementEnqueued += (sender, objWrapper) =>
+            {
+                Assert.AreSame((objWrapper as EventArgsContainer<string>).Value, _defaultElementForEnqueue);
+                Assert.AreEqual((objWrapper as EventArgsContainer<string>).Priority, _priorities.Min());
+            };
+
+            pq.Enqueue(_defaultElementForEnqueue);
+        }
+
+        [TestCase]
+        public void Should_Brodcast_Save_Obj_On_Dequeue()
+        {
+            pq.ElementEnqueued += (sender, objWrapper) =>
+            {
+                Assert.AreSame((objWrapper as EventArgsContainer<string>).Value, _defaultElementForEnqueue);
+                Assert.AreEqual((objWrapper as EventArgsContainer<string>).Priority, _priorities.Min());
+            };
+
+            pq.Enqueue(_defaultElementForEnqueue);
+            pq.Dequeue();
+        }
+
+        [TestCase]
+        public void Should_Dequeue_Elements_In_Priority_Descending_Order()
+        {
+            _elementsToEnque.ForEach(x => pq.Enqueue(x, _priorities.Max()));
+            _elementsToEnque.ForEach(x =>
+            {
+                var obj = pq.Dequeue();
+
+                Assert.AreSame(obj, x);
+            });
+
+            pq.Enqueue("goo", _priorities.Max() + 3);
+            pq.Enqueue("moo", _priorities.Max() + 2);
+            pq.Enqueue("roo", _priorities.Max() + 4);
+
+            var _obj = pq.Dequeue();
+            Assert.AreSame(_obj, "roo");
+
+            _obj = pq.Dequeue();
+            Assert.AreSame(_obj, "goo");
+
+            _obj = pq.Dequeue();
+            Assert.AreSame(_obj, "moo");
         }
     }
 }
