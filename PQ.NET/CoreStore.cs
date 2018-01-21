@@ -69,6 +69,7 @@ namespace PQ.NET
         internal void AddPriority(uint priority)
         {
             Priorities.Add(priority);
+            SetMinAndMaxPrio();
             _store.AddOrUpdate(priority, new ConcurrentQueue<T>(), (key, oldQ) => oldQ);
         }
 

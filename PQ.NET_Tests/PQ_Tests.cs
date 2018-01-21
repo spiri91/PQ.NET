@@ -9,10 +9,10 @@ namespace PQ.NET_Tests
     [TestFixture]
     public class PqTests
     {
-        private readonly uint[] _priorities = new uint[] { 1, 2, 3, 4 };
+        private readonly uint[] _priorities = new uint[] { 11, 22, 33, 44 };
         private string _defaultObject = "Empty queue";
         private string _defaultElementForEnqueue = "foo";
-        private readonly List<string> _elementsToEnque = new List<string> { "foo", "boo", "goo" };
+        private readonly List<string> _elementsToEnque = new List<string> { "foo", "boo", "goo", "voo" };
 
         private Pq<string> pq;
 
@@ -350,6 +350,36 @@ namespace PQ.NET_Tests
         public void Should_Throw_Exception_When_Dequeuing_Non_Existing_Queue()
         {
             Assert.Throws<KeyNotFoundException>(() => pq.Dequeue(_priorities.Max() + 1));
+        }
+
+        [TestCase]
+        public void Should_Update_Min_Prio()
+        {
+            _elementsToEnque.ForEach(x => pq.Enqueue(x, _priorities.Min()));
+            pq.Enqueue("Moo", _priorities.Min() - 1);
+
+            pq.ElementEnqueued += (key, element) =>
+            {
+                Assert.True((element as EventArgsContainer<string>).Priority == _priorities.Min() - 1);
+                Assert.True((element as EventArgsContainer<string>).Value == "Moo2");
+            };
+
+            pq.Enqueue("Moo2");
+        }
+
+        [TestCase]
+        public void Should_Update_Max_Prio()
+        {
+            _elementsToEnque.ForEach(x => pq.Enqueue(x, _priorities.Min()));
+            pq.Enqueue("Moo", _priorities.Max() + 1);
+
+            pq.ElementDequeued += (key, element) =>
+            {
+                Assert.True((element as EventArgsContainer<string>).Priority == _priorities.Max() + 1);
+                Assert.True((element as EventArgsContainer<string>).Value == "Moo");
+            };
+
+            pq.Dequeue();
         }
     }
 }

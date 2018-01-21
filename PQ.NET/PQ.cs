@@ -32,26 +32,16 @@ namespace PQ.NET
 
         public IList<T> GetFullQueueWithPriority(uint index)
         {
-            if (!ExistingPriorities.Contains(index))
-                return new List<T>();
+            if (!CheckIfPriorityExists(index))
+                throw new KeyNotFoundException($"Queue with priority {index} does not exist.");
 
             return _coreStore.GetAllElementsWithPrio(index);
         }
 
-        public T Peek(uint priority)
-        {
-            var obj = _coreStore.Peek(priority);
+        public T Peek(uint priority) => _coreStore.Peek(priority);
 
-            return obj;
-        }
-
-        public T Peek()
-        {
-            var obj = _coreStore.Peek();
-
-            return obj;
-        }
-
+        public T Peek() => _coreStore.Peek();
+        
         public int GetLengthOfQueue() => _coreStore.GetLengthOfQueue();
 
         public int GetLengthOfQueue(uint priority)
@@ -112,11 +102,8 @@ namespace PQ.NET
                 _coreStore.AddPriority(i);
         }
 
-        public void DeletePriority(uint priority)
-        {
-            _coreStore.DeletePrio(priority);
-        }
-
+        public void DeletePriority(uint priority) => _coreStore.DeletePrio(priority);
+    
         public void EmptyQueue() => _coreStore.EmptyQueue();
 
         protected virtual void AddEventToHistory(Actions action, T obj, uint priority) 
