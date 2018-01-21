@@ -165,9 +165,9 @@ namespace PQ.NET_Tests
         }
 
         [TestCase]
-        public void Should_Throw_Null_Reference_Error()
+        public void Should_Throw_Argument_Null_Error()
         {
-            Assert.Throws<NullReferenceException>(() => pq.Enqueue(null));
+            Assert.Throws<ArgumentNullException>(() => pq.Enqueue(null));
         }
 
         [TestCase]
@@ -337,6 +337,19 @@ namespace PQ.NET_Tests
             Assert.Throws<ArgumentNullException>(() => new Pq<string>(_priorities, null));
             Assert.Throws<ArgumentException>(() => new Pq<string>(new uint[0], null));
             Assert.Throws<ArgumentException>(() => new Pq<string>(null, _defaultObject));
+        }
+
+        [TestCase]
+        public void Should_Not_Enqueue_Null_Elements()
+        {
+            Assert.Throws<ArgumentNullException>(() => pq.Enqueue(null));
+            Assert.Throws<ArgumentNullException>(() => pq.Enqueue(null, _priorities.Max()));
+        }
+
+        [TestCase]
+        public void Should_Throw_Exception_When_Dequeuing_Non_Existing_Queue()
+        {
+            Assert.Throws<KeyNotFoundException>(() => pq.Dequeue(_priorities.Max() + 1));
         }
     }
 }

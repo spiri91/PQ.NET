@@ -66,6 +66,7 @@ namespace PQ.NET
         #region Commands
         public void Enqueue(T obj, uint priority)
         {
+            EnsureObjIsNotNull(obj);
             if (!CheckIfPriorityExists(priority))
                 _coreStore.AddPriority(priority);
 
@@ -84,7 +85,9 @@ namespace PQ.NET
 
         public T Dequeue(uint priority)
         {
-            CheckIfPriorityExists(priority);
+            if (!CheckIfPriorityExists(priority))
+                throw new KeyNotFoundException($"Queue with priority {priority} does not exist.");
+
             var obj = _coreStore.Pop(priority);
             AddEventToHistory(Actions.Dequeue, obj, priority);
             FireDequeuedEvent(obj, priority);
@@ -124,7 +127,7 @@ namespace PQ.NET
         private void EnsureObjIsNotNull(T obj)
         {
             if (obj == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException("The argument can not be null.");
         }
 
         private bool CheckIfPriorityExists(uint priority) => _coreStore.Priorities.Contains(priority);
