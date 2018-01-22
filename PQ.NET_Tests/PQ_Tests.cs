@@ -93,7 +93,7 @@ namespace PQ.NET_Tests
         public void Should_Add_Prio()
         {
             var newPrio = _priorities.Max() + 1;
-            pq.AddPriority(newPrio);
+            pq.AddPriorityLevel(newPrio);
 
             Assert.True(pq.ExistingPriorities.Contains(newPrio));
         }
@@ -102,7 +102,7 @@ namespace PQ.NET_Tests
         public void Should_Add_Prios()
         {
             var newPrios = Enumerable.Range((int)_priorities.Max() + 1, 10).Select(x => (uint)x);
-            pq.AddPriorities(newPrios);
+            pq.AddPriorityLevels(newPrios);
 
             newPrios.ToList().ForEach(x => Assert.True(pq.ExistingPriorities.Contains(x)));
         }
@@ -144,26 +144,17 @@ namespace PQ.NET_Tests
         }
 
         [TestCase]
-        public void Should_Delete_Full_Prio()
+        public void Should_Delete_All_Elements_With_Prio()
         {
-            pq.AddPriorities(_priorities);
+            pq.AddPriorityLevels(_priorities);
             pq.Enqueue(_defaultElementForEnqueue, _priorities.Min());
-            pq.DeletePriority(_priorities.Min());
-            pq.DeletePriority(_priorities.Max() + 1);
+            pq.DeleteAllElementsFromQueueWithPriorityLevel(_priorities.Min());
 
-            Assert.False(pq.ExistingPriorities.Contains(_priorities.Min()));
+            Assert.IsTrue(pq.GetLengthOfQueue(_priorities.Min()) == 0);
 
             pq.Enqueue(_defaultElementForEnqueue, _priorities.Min());
 
             Assert.AreEqual(1, pq.GetLengthOfQueue(_priorities.Min()));
-        }
-
-        [TestCase]
-        public void Should_Empty_Queue()
-        {
-            pq.EmptyQueue();
-
-            Assert.True(!pq.ExistingPriorities.Any());
         }
 
         [TestCase]
@@ -242,8 +233,8 @@ namespace PQ.NET_Tests
         [TestCase]
         public void Should_See_New_Priority_In_List()
         {
-            pq.AddPriority(_priorities.Max() + 1);
-            pq.AddPriorities(_priorities);
+            pq.AddPriorityLevel(_priorities.Max() + 1);
+            pq.AddPriorityLevels(_priorities);
 
             Assert.True(pq.ExistingPriorities.Contains(_priorities.Max() + 1));
             Assert.AreEqual(pq.ExistingPriorities.Count(), _priorities.Count() + 1);
@@ -258,7 +249,7 @@ namespace PQ.NET_Tests
         public void Should_Not_Loose_Elements_In_Queue()
         {
             _elementsToEnque.ForEach(x => pq.Enqueue(x, _priorities.Min()));
-            pq.AddPriority(_priorities.Min());
+            pq.AddPriorityLevel(_priorities.Min());
             var elements = pq[_priorities.Min()];
 
             Assert.AreEqual(elements.Count(), _elementsToEnque.Count());
@@ -283,7 +274,7 @@ namespace PQ.NET_Tests
         }
 
         [TestCase]
-        public void Should_Brodcast_Same_Obj_On_Enqueue()
+        public void Should_Broadcast_Same_Obj_On_Enqueue()
         {
             EventArgsContainer<string> dispatchedEvent = null;
 
@@ -410,6 +401,45 @@ namespace PQ.NET_Tests
 
             Assert.IsTrue(pq.GetLengthOfQueue() == numberOfElements);
             Assert.IsTrue(pq.EventsHistory.Count == numberOfElements);
+        }
+
+        [TestCase]
+        public void Should_Throw_Error_On_Peek_Non_Existing_Queue()
+        {
+            Assert.Throws<KeyNotFoundException>(
+                () => pq.Peek(_priorities.Max() + 1));
+        }
+
+        [TestCase]
+        public void Should_Throw_Error_On_Get_Length_Of_Non_Existing_Queue()
+        {
+            Assert.Throws<KeyNotFoundException>(
+                () => pq.GetLengthOfQueue(_priorities.Max() + 1));
+        }
+
+        [TestCase]
+        public void Should_Throw_Error_On_Delete_Non_Existing_Queue()
+        {
+            Assert.Throws<KeyNotFoundException>(
+                () => pq.DeleteAllElementsFromQueueWithPriorityLevel(_priorities.Max() + 1));
+        }
+
+        [TestCase]
+        public void Should_Not_Delete_Priority_Level_Once_With_The_Queue()
+        {
+            pq.DeleteAllElementsFromQueueWithPriorityLevel(_priorities.Min());
+
+            Assert.True(pq.ExistingPriorities.Contains(_priorities.Min()));
+            Assert.True(pq.GetLengthOfQueue(_priorities.Min()) == 0);
+
+            _elementsToEnque.ForEach(x => pq.Enqueue(x));
+
+            Assert.True(pq.GetLengthOfQueue(_priorities.Min()) == _elementsToEnque.Count);
+
+            pq.DeleteAllElementsFromQueueWithPriorityLevel(_priorities.Min());
+
+            Assert.True(pq.ExistingPriorities.Contains(_priorities.Min()));
+            Assert.True(pq.GetLengthOfQueue(_priorities.Min()) == 0);
         }
     }
 }

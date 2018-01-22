@@ -97,11 +97,7 @@ namespace PQ.NET
 
         internal int GetLengthOfQueue(uint priority) => _store[priority].Count();
 
-        internal void DeletePrio(uint priority)
-        {
-            _store.TryRemove(priority, out ConcurrentQueue<T> _);
-            if (Priorities.Contains(priority)) Priorities.Remove(priority);
-        }
+        internal void DeletePrio(uint priority) => _store[priority] = new ConcurrentQueue<T>();
 
         internal int GetLengthOfQueue()
         {
@@ -110,12 +106,6 @@ namespace PQ.NET
                 total += i.Value.Count();
 
             return total;
-        }
-
-        internal void EmptyQueue()
-        {
-            _store.Clear();
-            Priorities.Clear();
         }
     }
 }

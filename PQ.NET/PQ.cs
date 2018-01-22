@@ -34,7 +34,7 @@ namespace PQ.NET
         /// </summary>
         /// <exception cref="ArgumentException">When levelsOfPriority are null or don't contain any elements</exception>
         /// <exception cref="ArgumentNullException">When default object is null </exception>
-        /// <param name="levelsOfPriority">The levels of priority that the queue will initially have, levels cand be added later </param>
+        /// <param name="levelsOfPriority">The levels of priority that the queue will initially have, levels can be added later </param>
         /// <param name="defaultObject">In case of the queue is empty this object will be returned </param>
         public Pq(IEnumerable<uint> levelsOfPriority, T defaultObject)
         {
@@ -52,51 +52,90 @@ namespace PQ.NET
         /// <summary>
         /// Query => return a deep copy of all elements with priority in order.
         /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public IList<T> this[uint index] => GetFullQueueWithPriority(index);
+        /// <param name="priorityLevel"> Level of priority assign</param>
+        /// <exception cref="KeyNotFoundException">In case the priority with this level doesn't exist.</exception>
+        /// <returns>Returns a deep copy of all elements with priority in order</returns>
+        public IList<T> this[uint priorityLevel] => GetFullQueueWithPriority(priorityLevel);
 
         /// <summary>
         /// Query => return a deep copy of all elements with priority in order.
         /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public IList<T> GetFullQueueWithPriority(uint index)
+        /// <param name="index"> Level of priority assign</param>
+        /// <exception cref="KeyNotFoundException">In case the priority with this level doesn't exist.</exception>
+        /// <returns>Returns a deep copy of all elements with priority in order</returns>
+        public IList<T> GetFullQueueWithPriority(uint priorityLevel)
         {
-            if (!CheckIfPriorityExists(index))
-                throw new KeyNotFoundException($"Queue with priority {index} does not exist.");
+            if (!CheckIfPriorityExists(priorityLevel))
+                throw new KeyNotFoundException($"Queue with priority {priorityLevel} does not exist.");
 
-            return _coreStore.GetAllElementsWithPrio(index);
+            return _coreStore.GetAllElementsWithPrio(priorityLevel);
         }
 
+        /// <summary>
+        /// Peeks the next element to be dequeued.
+        /// </summary>
+        /// <param name="priorityLevel"></param>
+        /// <exception cref="KeyNotFoundException">In case the priority with this level doesn't exist.</exception>
+        /// <returns>Default object if the queue with this priority is empty.</returns>
+        public T Peek(uint priorityLevel)
+        {
+            if (!CheckIfPriorityExists(priorityLevel))
+                throw new KeyNotFoundException($"Queue with priority {priorityLevel} does not exist.");
 
-        public T Peek(uint priority) => _coreStore.Peek(priority);
+            return _coreStore.Peek(priorityLevel);
+        }
 
+        /// <summary>
+        /// Peeks the next element to be dequeued with max priority.
+        /// </summary>
+        /// <returns>Default object if the queue is empty.</returns>
         public T Peek() => _coreStore.Peek();
-        
+
+        /// <summary>
+        /// Gets the full length of the queue with all levels of priority.
+        /// </summary>
+        /// <returns>Gets the full length of the queue with all levels of priority</returns>
         public int GetLengthOfQueue() => _coreStore.GetLengthOfQueue();
 
-        public int GetLengthOfQueue(uint priority)
+        /// <summary>
+        /// Gets the full length of the queue with specific priority.
+        /// </summary>
+        /// <exception cref="KeyNotFoundException">In case the priority with this level doesn't exist.</exception>
+        /// <param name="priorityLevel">Represent the priority level of the queue</param>
+        /// <returns>Gets the full length of the queue with specific priority.</returns>
+        public int GetLengthOfQueue(uint priorityLevel)
         {
-            if (!CheckIfPriorityExists(priority))
-                return 0;
+            if (!CheckIfPriorityExists(priorityLevel))
+                throw new KeyNotFoundException($"Queue with priority {priorityLevel} does not exist.");
 
-            return _coreStore.GetLengthOfQueue(priority);
+            return _coreStore.GetLengthOfQueue(priorityLevel);
         }
         #endregion
 
+        /// <summary>
+        /// Enqueues the object on the selected queue.
+        /// If this level of priority is not already present in the queue, it will be automatically added.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">If element passed is null.</exception>
+        /// <param name="obj">Element to be enqueued, can not be null.</param>
+        /// <param name="priorityLevel">Level of priority that this element will be enqueued to</param>
         #region Commands
-        public void Enqueue(T obj, uint priority)
+        public void Enqueue(T obj, uint priorityLevel)
         {
             EnsureObjIsNotNull(obj);
-            if (!CheckIfPriorityExists(priority))
-                _coreStore.AddPriority(priority);
+            if (!CheckIfPriorityExists(priorityLevel))
+                _coreStore.AddPriority(priorityLevel);
 
-            AddEventToHistory(Actions.Enqueue, obj, priority);
-            FireEnqueuedEvent(obj, priority);
-            _coreStore.Append(obj, priority);
+            AddEventToHistory(Actions.Enqueue, obj, priorityLevel);
+            FireEnqueuedEvent(obj, priorityLevel);
+            _coreStore.Append(obj, priorityLevel);
         }
 
+        /// <summary>
+        /// Enqueues the object on lowest level of priority that the queue already has.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">If element passed is null.</exception>
+        /// <param name="obj">Element to be enqueued, can not be null.</param>
         public void Enqueue(T obj)
         {
             EnsureObjIsNotNull(obj);
@@ -105,18 +144,28 @@ namespace PQ.NET
             _coreStore.Append(obj);
         }
 
-        public T Dequeue(uint priority)
+        /// <summary>
+        /// Dequeues the next element in line from the queue with priority.
+        /// </summary>
+        /// <exception cref="KeyNotFoundException">If this priority level is not already present.</exception>
+        /// <param name="priorityLevel">Represent the priority level of the queue</param>
+        /// <returns>Dequeues the next element in line from the queue with priority</returns>
+        public T Dequeue(uint priorityLevel)
         {
-            if (!CheckIfPriorityExists(priority))
-                throw new KeyNotFoundException($"Queue with priority {priority} does not exist.");
+            if (!CheckIfPriorityExists(priorityLevel))
+                throw new KeyNotFoundException($"Queue with priority {priorityLevel} does not exist.");
 
-            var obj = _coreStore.Pop(priority);
-            AddEventToHistory(Actions.Dequeue, obj, priority);
-            FireDequeuedEvent(obj, priority);
+            var obj = _coreStore.Pop(priorityLevel);
+            AddEventToHistory(Actions.Dequeue, obj, priorityLevel);
+            FireDequeuedEvent(obj, priorityLevel);
 
             return obj;
         }
 
+        /// <summary>
+        /// Dequeues the next element in line from the queue with max priority.
+        /// </summary>
+        /// <returns>Dequeues the next element in line from the queue with max priority.</returns>
         public T Dequeue()
         {
             var element = _coreStore.Pop();
@@ -126,20 +175,44 @@ namespace PQ.NET
             return element.Item1;
         }
 
-        public void AddPriority(uint priority) => _coreStore.AddPriority(priority);
+        /// <summary>
+        /// Adds a new level of priority to exiting one, if this level is already present, it will not be overridden and no errors will be thrown
+        /// </summary>
+        /// <param name="priorityLevel">New priority level to be added.</param>
+        public void AddPriorityLevel(uint priorityLevel) => _coreStore.AddPriority(priorityLevel);
 
-        public void AddPriorities(IEnumerable<uint> priorities)
+        /// <summary>
+        /// Adds a new levels of priority to exiting ones, if this levels are already present, it will not be overridden and no errors will be thrown
+        /// </summary>
+        /// <param name="priorityLevels">New priority levels to be added.</param>
+        public void AddPriorityLevels(IEnumerable<uint> priorityLevels)
         {
-            foreach (var i in priorities)
+            foreach (var i in priorityLevels)
                 _coreStore.AddPriority(i);
         }
 
-        public void DeletePriority(uint priority) => _coreStore.DeletePrio(priority);
-    
-        public void EmptyQueue() => _coreStore.EmptyQueue();
+        /// <summary>
+        /// Deleted a priority level and all it's elements
+        /// </summary>
+        /// <exception cref="KeyNotFoundException">If selected priority is not present</exception>
+        /// <param name="priorityLevel">Priority level to be deleted.</param>
+        public void DeleteAllElementsFromQueueWithPriorityLevel(uint priorityLevel)
+        {
+            if (!CheckIfPriorityExists(priorityLevel))
+                throw new KeyNotFoundException($"Queue with priority {priorityLevel} does not exist.");
 
-        protected virtual void AddEventToHistory(Actions action, T obj, uint priority) 
-            => _eventHistoryStore.Add(new PqEvent<T>(action, obj, priority));
+            _coreStore.DeletePrio(priorityLevel);
+        }
+
+        /// <summary>
+        /// Every Enqueue or Dequeue action is stored in history events list;
+        /// Can be overridden if needed 
+        /// </summary>
+        /// <param name="action">Enqueue or Dequeue</param>
+        /// <param name="obj"></param>
+        /// <param name="priorityLevel"></param>
+        protected virtual void AddEventToHistory(Actions action, T obj, uint priorityLevel)
+            => _eventHistoryStore.Add(new PqEvent<T>(action, obj, priorityLevel));
         #endregion
 
         // ReSharper disable once UnusedParameter.Local
