@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using PQ.NET;
+using System.Threading.Tasks;
 
 namespace PQ.NET_Tests
 {
@@ -19,6 +20,7 @@ namespace PQ.NET_Tests
         [SetUp]
         public void CreatePq()
         {
+            var a = new Pq<string>(new uint[] { 1, 2 }, "bla");
             pq = new Pq<string>(_priorities, _defaultObject);
         }
 
@@ -283,26 +285,33 @@ namespace PQ.NET_Tests
         [TestCase]
         public void Should_Brodcast_Same_Obj_On_Enqueue()
         {
+            EventArgsContainer<string> dispatchedEvent = null;
+
             pq.ElementEnqueued += (sender, objWrapper) =>
             {
-                Assert.AreSame((objWrapper as EventArgsContainer<string>).Value, _defaultElementForEnqueue);
-                Assert.AreEqual((objWrapper as EventArgsContainer<string>).Priority, _priorities.Min());
+                dispatchedEvent = objWrapper as EventArgsContainer<string>;
             };
 
             pq.Enqueue(_defaultElementForEnqueue);
+
+            Assert.AreSame(dispatchedEvent.Value, _defaultElementForEnqueue);
+            Assert.AreEqual(dispatchedEvent.Priority, _priorities.Min());
         }
 
         [TestCase]
         public void Should_Brodcast_Save_Obj_On_Dequeue()
         {
-            pq.ElementEnqueued += (sender, objWrapper) =>
+            EventArgsContainer<string> dispatchedEvent = null;
+            pq.ElementDequeued += (sender, objWrapper) =>
             {
-                Assert.AreSame((objWrapper as EventArgsContainer<string>).Value, _defaultElementForEnqueue);
-                Assert.AreEqual((objWrapper as EventArgsContainer<string>).Priority, _priorities.Min());
+                dispatchedEvent = objWrapper as EventArgsContainer<string>;
             };
 
             pq.Enqueue(_defaultElementForEnqueue);
             pq.Dequeue();
+
+            Assert.AreSame(dispatchedEvent.Value, _defaultElementForEnqueue);
+            Assert.AreEqual(dispatchedEvent.Priority, _priorities.Min());
         }
 
         [TestCase]
@@ -357,14 +366,16 @@ namespace PQ.NET_Tests
         {
             _elementsToEnque.ForEach(x => pq.Enqueue(x, _priorities.Min()));
             pq.Enqueue("Moo", _priorities.Min() - 1);
-
+            EventArgsContainer<string> dispatchedEvent = null;
             pq.ElementEnqueued += (key, element) =>
             {
-                Assert.True((element as EventArgsContainer<string>).Priority == _priorities.Min() - 1);
-                Assert.True((element as EventArgsContainer<string>).Value == "Moo2");
+                dispatchedEvent = element as EventArgsContainer<string>;
             };
 
             pq.Enqueue("Moo2");
+
+            Assert.True(dispatchedEvent.Priority == _priorities.Min() - 1);
+            Assert.True(dispatchedEvent.Value == "Moo2");
         }
 
         [TestCase]
@@ -373,13 +384,32 @@ namespace PQ.NET_Tests
             _elementsToEnque.ForEach(x => pq.Enqueue(x, _priorities.Min()));
             pq.Enqueue("Moo", _priorities.Max() + 1);
 
+            EventArgsContainer<string> dispatchedEvent = null;
+
             pq.ElementDequeued += (key, element) =>
             {
-                Assert.True((element as EventArgsContainer<string>).Priority == _priorities.Max() + 1);
-                Assert.True((element as EventArgsContainer<string>).Value == "Moo");
+                dispatchedEvent = element as EventArgsContainer<string>;
             };
 
             pq.Dequeue();
+
+            Assert.True(dispatchedEvent.Priority == _priorities.Max() + 1);
+            Assert.True(dispatchedEvent.Value == "Moo");
+        }
+
+        [TestCase]
+        public void Should_Enqueue_Same_Number_Of_Elements_On_Paralel()
+        {
+            uint range = _priorities.Max();
+            var numberOfElements = 50000;
+            new Task(() =>
+               Enumerable.Range(1, numberOfElements).AsParallel().ToList()
+               .ForEach(x => { pq.Enqueue(x.ToString(), range);
+                   if (range % 2 == 0) range++; else range--; })
+           ).RunSynchronously();
+
+            Assert.IsTrue(pq.GetLengthOfQueue() == numberOfElements);
+            Assert.IsTrue(pq.EventsHistory.Count == numberOfElements);
         }
     }
 }

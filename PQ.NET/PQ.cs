@@ -6,15 +6,36 @@ namespace PQ.NET
 {
     public class Pq<T> : IQueue<T>
     {
+        /// <summary>
+        /// Just a GETTER in order to see the current levels of priority, in order to add new one use method AddPriority 
+        /// </summary>
         public IEnumerable<uint> ExistingPriorities => _coreStore.Priorities;
+
+        /// <summary>
+        /// Returns a list of all Enqueued and Dequeued events, if the list becomes huge you can override the AddEventToHistoryMethod
+        /// </summary>
         public IList<PqEvent<T>> EventsHistory => _eventHistoryStore.History.ToList();
 
+        /// <summary>
+        /// It is triggered before one element is enqueued.
+        /// </summary>
         public event EventHandler ElementEnqueued;
+
+        /// <summary>
+        /// It is triggered after one element has been dequeued.
+        /// </summary>
         public event EventHandler ElementDequeued;
 
         private readonly CoreStore<T> _coreStore;
         private readonly EventHistoryStore<T> _eventHistoryStore;
 
+        /// <summary>
+        /// Return a new instance of Priority Queue 
+        /// </summary>
+        /// <exception cref="ArgumentException">When levelsOfPriority are null or don't contain any elements</exception>
+        /// <exception cref="ArgumentNullException">When default object is null </exception>
+        /// <param name="levelsOfPriority">The levels of priority that the queue will initially have, levels cand be added later </param>
+        /// <param name="defaultObject">In case of the queue is empty this object will be returned </param>
         public Pq(IEnumerable<uint> levelsOfPriority, T defaultObject)
         {
             if (levelsOfPriority == null || levelsOfPriority.Count() == 0)
@@ -28,8 +49,18 @@ namespace PQ.NET
         }
 
         #region Queries
+        /// <summary>
+        /// Query => return a deep copy of all elements with priority in order.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public IList<T> this[uint index] => GetFullQueueWithPriority(index);
 
+        /// <summary>
+        /// Query => return a deep copy of all elements with priority in order.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public IList<T> GetFullQueueWithPriority(uint index)
         {
             if (!CheckIfPriorityExists(index))
@@ -37,6 +68,7 @@ namespace PQ.NET
 
             return _coreStore.GetAllElementsWithPrio(index);
         }
+
 
         public T Peek(uint priority) => _coreStore.Peek(priority);
 
