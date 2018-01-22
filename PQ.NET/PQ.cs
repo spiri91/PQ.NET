@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace PQ.NET
 {
-    public class Pq<T> : IQueue<T>
+    public class Pq<T> : IPriorityQueue<T>
     {
         /// <summary>
         /// Just a GETTER in order to see the current levels of priority, in order to add new one use method AddPriority 

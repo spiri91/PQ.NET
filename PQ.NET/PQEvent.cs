@@ -2,7 +2,11 @@
 
 namespace PQ.NET
 {
-    public class PqEvent<T>
+    public interface IPqEvent<T> {
+        Actions Action { get; }
+    };
+
+    public class PqEvent<T> : IPqEvent<T>
     {
         public Actions Action { get; }
         public T Value { get; }

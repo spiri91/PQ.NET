@@ -15,12 +15,11 @@ namespace PQ.NET_Tests
         private string _defaultElementForEnqueue = "foo";
         private readonly List<string> _elementsToEnque = new List<string> { "foo", "boo", "goo", "voo" };
 
-        private Pq<string> pq;
+        private IPriorityQueue<string> pq;
 
         [SetUp]
         public void CreatePq()
         {
-            var a = new Pq<string>(new uint[] { 1, 2 }, "bla");
             pq = new Pq<string>(_priorities, _defaultObject);
         }
 

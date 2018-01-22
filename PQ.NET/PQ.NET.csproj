@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
+    <PackageId>PQ.NET.SPIRI(!</PackageId>
+    <PackageVersion>0.9</PackageVersion>
+    <Authors>SPIRI91</Authors>
+    <Description>Awesome priority queue</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
+    <Copyright>Under MIT Licence</Copyright>
+    <PackageTags>queue priority queue concurent data structures</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard1.3\PQ.NET.xml</DocumentationFile>
   </PropertyGroup>
 
 </Project>
