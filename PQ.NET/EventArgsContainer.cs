@@ -4,13 +4,11 @@ namespace PQ.NET
 {
     public class EventArgsContainer<T> : EventArgs
     {
-        public T Value { get; }
-        public UInt32 Priority { get; }
+        public PqEvent<T> Obj { get; }
 
-        public EventArgsContainer(T obj, UInt32 priority)
+        public EventArgsContainer(PqEvent<T> obj)
         {
-            Value = obj;
-            Priority = priority;
+            Obj = obj;
         }
     }
 }

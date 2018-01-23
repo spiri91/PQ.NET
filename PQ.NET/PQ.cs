@@ -224,8 +224,8 @@ namespace PQ.NET
 
         private bool CheckIfPriorityExists(uint priority) => _coreStore.Priorities.Contains(priority);
 
-        private void FireDequeuedEvent(T obj, uint priority) => ElementDequeued?.Invoke(this, new EventArgsContainer<T>(obj, priority));
+        private void FireDequeuedEvent(T obj, uint priority) => ElementDequeued?.Invoke(this, new EventArgsContainer<T>(new PqEvent<T>(Actions.Dequeue, obj, priority)));
 
-        private void FireEnqueuedEvent(T obj, uint priority) => ElementEnqueued?.Invoke(this, new EventArgsContainer<T>(obj, priority));
+        private void FireEnqueuedEvent(T obj, uint priority) => ElementEnqueued?.Invoke(this, new EventArgsContainer<T>(new PqEvent<T>(Actions.Enqueue, obj, priority)));
     }
 }

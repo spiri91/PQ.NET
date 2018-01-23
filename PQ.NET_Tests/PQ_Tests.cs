@@ -284,8 +284,9 @@ namespace PQ.NET_Tests
 
             pq.Enqueue(_defaultElementForEnqueue);
 
-            Assert.AreSame(dispatchedEvent.Value, _defaultElementForEnqueue);
-            Assert.AreEqual(dispatchedEvent.Priority, _priorities.Min());
+            Assert.IsTrue(dispatchedEvent.Obj.Action == Actions.Enqueue);
+            Assert.AreSame(dispatchedEvent.Obj.Value, _defaultElementForEnqueue);
+            Assert.AreEqual(dispatchedEvent.Obj.Priority, _priorities.Min());
         }
 
         [TestCase]
@@ -300,8 +301,9 @@ namespace PQ.NET_Tests
             pq.Enqueue(_defaultElementForEnqueue);
             pq.Dequeue();
 
-            Assert.AreSame(dispatchedEvent.Value, _defaultElementForEnqueue);
-            Assert.AreEqual(dispatchedEvent.Priority, _priorities.Min());
+            Assert.IsTrue(dispatchedEvent.Obj.Action == Actions.Dequeue);
+            Assert.AreSame(dispatchedEvent.Obj.Value, _defaultElementForEnqueue);
+            Assert.AreEqual(dispatchedEvent.Obj.Priority, _priorities.Min());
         }
 
         [TestCase]
@@ -364,8 +366,8 @@ namespace PQ.NET_Tests
 
             pq.Enqueue("Moo2");
 
-            Assert.True(dispatchedEvent.Priority == _priorities.Min() - 1);
-            Assert.True(dispatchedEvent.Value == "Moo2");
+            Assert.True(dispatchedEvent.Obj.Priority == _priorities.Min() - 1);
+            Assert.True(dispatchedEvent.Obj.Value == "Moo2");
         }
 
         [TestCase]
@@ -383,8 +385,8 @@ namespace PQ.NET_Tests
 
             pq.Dequeue();
 
-            Assert.True(dispatchedEvent.Priority == _priorities.Max() + 1);
-            Assert.True(dispatchedEvent.Value == "Moo");
+            Assert.True(dispatchedEvent.Obj.Priority == _priorities.Max() + 1);
+            Assert.True(dispatchedEvent.Obj.Value == "Moo");
         }
 
         [TestCase]

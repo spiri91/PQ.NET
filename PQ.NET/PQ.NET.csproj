@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
-    <PackageId>PQ.NET.SPIRI(!</PackageId>
+    <PackageId>PQ.NET.SPIRI</PackageId>
     <PackageVersion>0.9</PackageVersion>
     <Authors>SPIRI91</Authors>
     <Description>Awesome priority queue</Description>

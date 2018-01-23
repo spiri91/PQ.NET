@@ -6,7 +6,8 @@ namespace PQ.NET_Examples
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var demo = new Demo();
+            Console.ReadKey();
         }
     }
 }
