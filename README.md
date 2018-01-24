@@ -4,8 +4,8 @@ Priority queue for net standard v1.3 and up, thread safe, no 3-rd party dependen
 
 ## Installing
 
-Package manager: Install-Package PQ.NET.SPIRI  
-.NET CLI: dotnet add package PQ.NET.SPIRI
+Package manager: Install-Package PQ.NET  
+.NET CLI: dotnet add package PQ.NET
  
 ## Prerequisites
 
